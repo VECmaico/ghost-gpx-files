@@ -95,6 +95,10 @@
         // LOAD CLEAN GPX TRACKS ONLY
         // ------------------------------------------------------------
         const gpxFiles = [
+            'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/wildcamping.gpx',
+            'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/warmshowers.gpx',
+            'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/paidcamping.gpx',
+            'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/spontaanovernachten.gpx',
             'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/RUW_BE_01.gpx',
             'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/RUW_FR_01.gpx',
             'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/RUW_FR_02.gpx',
