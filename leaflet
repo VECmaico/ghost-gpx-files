@@ -4,11 +4,18 @@
 <script src="https://unpkg.com/leaflet-gpx@2.1.0/gpx.js"></script>
 
 <style>
-    #ghost-gpx-map .leaflet-marker-pane img, 
+    #ghost-gpx-map .leaflet-marker-pane img,
     #ghost-gpx-map .leaflet-shadow-pane img {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
+    }
+    
+    /* EXCEPTION RULE: Force your custom POI class markers to stay completely visible! */
+    #ghost-gpx-map .leaflet-marker-pane img.custom-poi-marker {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 </style>
 
@@ -22,26 +29,21 @@
         // DEFINE THE MAP TILES (BASE LAYERS)
         // ------------------------------------------------------------
         const watercolor = L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=${apiKey}`, {
-            minZoom: 1, maxZoom: 16,
-            attribution: '&copy; <a href="https://stamen.com">Stamen Design</a>'
+            minZoom: 1, maxZoom: 16, attribution: '© <a href="https://stamen.com">Stamen Design</a>'
         });
 
         const outdoors = L.tileLayer(`https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png?api_key=${apiKey}`, {
-            minZoom: 0, maxZoom: 20,
-            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+            minZoom: 0, maxZoom: 20, attribution: '© <a href="https://stadiamaps.com/">Stadia Maps</a>'
         });
 
         const openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-            attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+            maxZoom: 17, attribution: '© <a href="https://opentopomap.org">OpenTopoMap</a>'
         });
 
         const cyclOSM = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
-            maxZoom: 20,
-            attribution: '&copy; <a href="https://github.com/cyclosm/cyclosm-cartocss-style">CyclOSM</a>'
+            maxZoom: 20, attribution: '© <a href="https://github.com/cyclosm/cyclosm-cartocss-style">CyclOSM</a>'
         });
 
-        // Initialize the map centered on Europe
         const map = L.map('ghost-gpx-map', {
             center: [50.5, 4.5],
             zoom: 5,
@@ -58,7 +60,39 @@
         L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
 
         // ------------------------------------------------------------
-        // LOAD GPX TRACKS & DEFINE COLOR LOGIC
+        // DEFINE YOUR POI ICONS WITH THE EXCEPTION CLASSNAME
+        // ------------------------------------------------------------
+        const campIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2983/2983803.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32],
+            className: 'custom-poi-marker' // Bypasses the CSS hiding rule
+        });
+
+        const viewpointIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684914.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32],
+            className: 'custom-poi-marker' // Bypasses the CSS hiding rule
+        });
+
+        // ------------------------------------------------------------
+        // MANUALLY CONFIGURING YOUR POINTS OF INTEREST (POIs)
+        // ------------------------------------------------------------
+        const pointsOfInterest = [
+            { coords: [50.5010, 4.4700], title: "<b>Beautiful Campsite</b><br>Great overnight stay.", icon: campIcon },
+            { coords: [49.2500, 4.0300], title: "<b>Scenic Viewpoint</b><br>Amazing panoramic photo spot.", icon: viewpointIcon }
+        ];
+
+        // Draw your POIs cleanly onto the map canvas
+        pointsOfInterest.forEach(function(poi) {
+            L.marker(poi.coords, { icon: poi.icon }).addTo(map).bindPopup(poi.title);
+        });
+
+        // ------------------------------------------------------------
+        // LOAD CLEAN GPX TRACKS ONLY
         // ------------------------------------------------------------
         const gpxFiles = [
             'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/RUW_BE_01.gpx',
@@ -69,16 +103,16 @@
             'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/RUW_FR_05.gpx'
         ];
 
-        // Keep a reference list of all loaded GPX layers so we can change their styles later
         const loadedGpxLayers = [];
 
         gpxFiles.forEach(function(url) {
             const gpxTrack = new L.GPX(url, {
                 async: true,
-                gpx_options: { parseElements: ['track'] },
-                marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' },
+                gpx_options: { 
+                    parseElements: ['track']
+                },
                 polyline_options: {
-                    color: '#d35400',   // Initial color for default Watercolor map
+                    color: '#d35400',
                     opacity: 0.85,
                     weight: 5,
                     lineCap: 'round'
@@ -89,29 +123,18 @@
         });
 
         // ------------------------------------------------------------
-        // LISTEN FOR LAYER CHANGES AND CHANGE COLORS DYNAMICALLY
+        // LAYER CHANGE DYNAMIC COLORS
         // ------------------------------------------------------------
         map.on('baselayerchange', function(event) {
-            let newColor = '#d35400'; // Default fallback
+            let newColor = '#d35400';
+            if (event.name === "Stamen Watercolor") newColor = '#d35400';
+            else if (event.name === "Stadia Outdoors") newColor = '#00a8ff';
+            else if (event.name === "OpenTopoMap") newColor = '#e84393';
+            else if (event.name === "CyclOSM (Cycling)") newColor = '#0984e3';
 
-            // Assign colors matching each map name option exactly
-            if (event.name === "Stamen Watercolor") {
-                newColor = '#d35400'; // Rich Burnt Orange
-            } else if (event.name === "Stadia Outdoors") {
-                newColor = '#00a8ff'; // Electric Sky Blue / Teal
-            } else if (event.name === "OpenTopoMap") {
-                newColor = '#e84393'; // Magenta (stands out against dense topo lines)
-            } else if (event.name === "CyclOSM (Cycling)") {
-                newColor = '#0984e3'; // Clear Deep Blue
-            }
-
-            // Loop through all tracks and apply the new styling rule seamlessly
             loadedGpxLayers.forEach(function(track) {
-                track.setStyle({
-                    color: newColor
-                });
+                track.setStyle({ color: newColor });
             });
         });
-
-});
+    });
 </script>
