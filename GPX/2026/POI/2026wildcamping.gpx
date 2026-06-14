@@ -3,13 +3,33 @@
   <metadata>
     <name>favorites-2026wildcamping</name>
   </metadata>
-  <wpt lat="47.4737577" lon="-1.7613783">
-    <time>2026-06-14T13:13:20Z</time>
+  <wpt lat="47.2161745" lon="-1.7760225">
+    <time>2026-06-14T22:24:19Z</time>
     <name>Test</name>
     <type>2026wildcamping</type>
+  </wpt>
+  <wpt lat="47.2151942" lon="-1.7558163">
+    <ele>5</ele>
+    <time>2026-06-14T22:24:27Z</time>
+    <name>Test2</name>
+    <type>2026wildcamping</type>
     <extensions>
-      <osmand:address>Rue Victor Schoelcher, Blain</osmand:address>
+      <osmand:address>RUW_FR_06</osmand:address>
     </extensions>
+  </wpt>
+  <wpt lat="47.452196" lon="-1.6436265">
+    <ele>21.2</ele>
+    <time>2026-06-14T22:24:43Z</time>
+    <name>Test3</name>
+    <type>2026wildcamping</type>
+    <extensions>
+      <osmand:address>RUW_FR_06</osmand:address>
+    </extensions>
+  </wpt>
+  <wpt lat="47.2116235" lon="-1.7646255">
+    <time>2026-06-14T22:24:58Z</time>
+    <name>Test 3</name>
+    <type>2026wildcamping</type>
   </wpt>
   <extensions>
     <osmand:points_groups>
