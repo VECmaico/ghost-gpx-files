@@ -22,83 +22,59 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const apiKey = '92bfe59f-f670-4e7d-a4de-e728b7a3f930';
-    const baseUrl = 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/GPX/';
-
-    const watercolor = L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=${apiKey}`);
-    const outdoors = L.tileLayer(`https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png?api_key=${apiKey}`);
-    const openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
-    const cyclOSM = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png');
-
-    const map = L.map('ghost-gpx-map', { 
-        center: [50.5, 4.5], 
-        zoom: 5,
-        layers: [watercolor]
-    });
-
-    const baseMaps = { "Watercolor": watercolor, "Outdoors": outdoors, "Topo": openTopoMap, "CyclOSM": cyclOSM };
-    L.control.layers(baseMaps, null, { position: 'bottomright' }).addTo(map);
+    const rootUrl = 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/GPX/';
+    
+    // Manifest files located in the root GPX/ folder
+    const manifestFiles = ['2025manifest.json', '2026manifest.json']; 
+    
+    const map = L.map('ghost-gpx-map', { center: [50.5, 4.5], zoom: 5 });
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=92bfe59f-f670-4e7d-a4de-e728b7a3f930').addTo(map);
 
     const accommodationsLayer = L.layerGroup(); 
     
-    // Icon configuration
     const iconWild = L.icon({iconUrl: 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/icons/120px-OCM_l_backcountry.png', iconSize: [28,28], iconAnchor: [14,14]});
     const iconPaid = L.icon({iconUrl: 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/icons/1920px-OCM_l_camping.png', iconSize: [28,28], iconAnchor: [14,14]});
-    const iconDefault = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/66/OCM_l_hostel.svg', iconSize: [28,28], iconAnchor: [14,14]});
 
-    fetch(baseUrl + 'manifest.json')
-        .then(res => res.json())
-        .then(files => {
-            files.forEach(filename => {
-                const url = baseUrl + filename;
-                fetch(url)
-                    .then(r => r.text())
-                    .then(str => {
-                        const gpxDom = new window.DOMParser().parseFromString(str, "text/xml");
-                        const geoJson = toGeoJSON.gpx(gpxDom);
+    manifestFiles.forEach(manifest => {
+        fetch(rootUrl + manifest)
+            .then(res => res.json())
+            .then(filePaths => {
+                filePaths.forEach(path => {
+                    fetch(rootUrl + path)
+                        .then(r => r.text())
+                        .then(str => {
+                            const gpxDom = new window.DOMParser().parseFromString(str, "text/xml");
+                            const geoJson = toGeoJSON.gpx(gpxDom);
 
-                        if (filename.toLowerCase().includes('camping') || filename.toLowerCase().includes('showers') || filename.toLowerCase().includes('spontaan')) {
-                            
-                            // Determine icon based on filename
-                            let currentIcon = iconDefault;
-                            if (filename.toLowerCase().includes('wildcamping')) {
-                                currentIcon = iconWild;
-                            } else if (filename.toLowerCase().includes('paidcamping')) {
-                                currentIcon = iconPaid;
+                            // Detects if file is in a POI folder
+                            if (path.toLowerCase().includes('/poi/')) {
+                                let currentIcon = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/66/OCM_l_hostel.svg', iconSize: [28,28], iconAnchor: [14,14]});
+                                
+                                if (path.toLowerCase().includes('wildcamping')) currentIcon = iconWild;
+                                else if (path.toLowerCase().includes('paidcamping')) currentIcon = iconPaid;
+
+                                L.geoJSON(geoJson, {
+                                    filter: (f) => f.geometry.type === "Point",
+                                    pointToLayer: (feature, latlng) => L.marker(latlng, { icon: currentIcon }).bindPopup("<b>" + (feature.properties.name || "Waypoint") + "</b>")
+                                }).addTo(accommodationsLayer);
+                            } else {
+                                // Handles tracks in RUW or other subfolders
+                                L.geoJSON(geoJson, {
+                                    filter: (f) => f.geometry.type === "LineString",
+                                    style: { color: '#d35400', weight: 5, opacity: 1 }
+                                }).addTo(map);
                             }
-
-                            L.geoJSON(geoJson, {
-                                filter: (f) => f.geometry.type === "Point",
-                                pointToLayer: (feature, latlng) => {
-                                    return L.marker(latlng, { icon: currentIcon }).bindPopup("<b>" + (feature.properties.name || "Waypoint") + "</b>");
-                                }
-                            }).addTo(accommodationsLayer);
-                        } else {
-                            let found = false;
-                            L.geoJSON(geoJson, {
-                                filter: (f) => {
-                                    if (!found && f.geometry.type === "LineString") {
-                                        found = true;
-                                        return true;
-                                    }
-                                    return false;
-                                },
-                                style: { color: '#d35400', weight: 5, opacity: 1 }
-                            }).addTo(map);
-                        }
-                    });
+                        });
+                });
             });
-        });
+    });
 
     document.querySelectorAll('input[name="waypoint-category"]').forEach(radio => {
         radio.addEventListener('change', function() {
-            if (this.value === 'show_all') {
-                accommodationsLayer.addTo(map);
-            } else {
-                map.removeLayer(accommodationsLayer);
-            }
+            if (this.value === 'show_all') accommodationsLayer.addTo(map);
+            else map.removeLayer(accommodationsLayer);
         });
     });
 });
-
-</script>
+</
+script>
