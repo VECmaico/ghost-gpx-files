@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@mapbox/togeojson@0.16.0/togeojson.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+        #ghost-gpx-map { height: 100vh; width: 100vw; background: #ddd; }
+    </style>
+</head>
+<body>
+
+<div id="ghost-gpx-map"></div>
+
+<script>
+    // 1. Force the map to initialize only after page load
+    window.onload = function() {
+        var map = L.map('ghost-gpx-map').setView([50.5, 4.5], 6);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        const rootUrl = 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/GPX/';
+        const manifests = ['2025manifest.json', '2026manifest.json'];
+
+        manifests.forEach(function(m) {
+            fetch(rootUrl + m)
+            .then(response => response.json())
+            .then(files => {
+                files.forEach(function(file) {
+                    fetch(rootUrl + file)
+                    .then(r => r.text())
+                    .then(str => {
+                        var dom = new DOMParser().parseFromString(str, "text/xml");
+                        var geo = toGeoJSON.gpx(dom);
+                        L.geoJSON(geo, {
+                            style: { color: m.includes('2026') ? 'green' : 'blue', weight: 4 }
+                        }).addTo(map);
+                    });
+                });
+            })
+            .catch(err => console.error("Error loading " + m, err));
+        });
+    };
+</script>
+</body>
+</ht
+  ml>
