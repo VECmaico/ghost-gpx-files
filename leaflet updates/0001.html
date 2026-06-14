@@ -6,8 +6,14 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@mapbox/togeojson@0.16.0/togeojson.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
-        #ghost-gpx-map { height: 100vh; width: 100vw; background: #ddd; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; }
+        /* Map width 100%, height 300px */
+        #ghost-gpx-map { height: 300px; width: 100%; }
+        .custom-control { 
+            background: white; padding: 5px; border-radius: 4px; 
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            display: flex; gap: 8px; align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -15,20 +21,17 @@
 <div id="ghost-gpx-map"></div>
 
 <script>
-    // 1. Force the map to initialize only after page load
     window.onload = function() {
         var map = L.map('ghost-gpx-map').setView([50.5, 4.5], 6);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        const rootUrl = 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/GPX/';
-        const manifests = ['2025manifest.json', '2026manifest.json'];
+        var poiLayer = L.layerGroup(); 
+        var rootUrl = 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/GPX/';
+        var manifests = ['2025manifest.json', '2026manifest.json'];
 
         manifests.forEach(function(m) {
             fetch(rootUrl + m)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(files => {
                 files.forEach(function(file) {
                     fetch(rootUrl + file)
@@ -36,16 +39,42 @@
                     .then(str => {
                         var dom = new DOMParser().parseFromString(str, "text/xml");
                         var geo = toGeoJSON.gpx(dom);
-                        L.geoJSON(geo, {
-                            style: { color: m.includes('2026') ? 'green' : 'blue', weight: 4 }
-                        }).addTo(map);
+                        
+                        if (file.toLowerCase().includes('/poi/')) {
+                            L.geoJSON(geo, { filter: f => f.geometry.type === "Point" }).addTo(poiLayer);
+                        } else {
+                            // Strict filter: LineString ONLY, ignoring any Points/Markers in the track file
+                            L.geoJSON(geo, { 
+                                filter: f => f.geometry.type === "LineString",
+                                style: { color: m.includes('2026') ? '#27ae60' : '#2980b9', weight: 4 } 
+                            }).addTo(map);
+                        }
                     });
                 });
-            })
-            .catch(err => console.error("Error loading " + m, err));
+            });
         });
+
+        // Add Toggle Control
+        var ToggleControl = L.Control.extend({
+            onAdd: function() {
+                var div = L.DomUtil.create('div', 'custom-control');
+                div.innerHTML = '<label><input type="radio" name="poi" value="show"> 🏕️💤</label> <label><input type="radio" name="poi" value="hide" checked> ❌</label>';
+                L.DomEvent.disableClickPropagation(div);
+                return div;
+            }
+        });
+        map.addControl(new ToggleControl({ position: 'topright' }));
+
+        document.getElementsByName('poi').forEach(radio => {
+            radio.addEventListener('change', function() {
+                this.value === 'show' ? poiLayer.addTo(map) : map.removeLayer(poiLayer);
+            });
+        });
+
+        // Ensure proper size
+        setTimeout(() => map.invalidateSize(), 500);
     };
 </script>
 </body>
-</ht
-  ml>
+<
+    /html>
