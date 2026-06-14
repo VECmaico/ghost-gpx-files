@@ -39,15 +39,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const baseMaps = { "Watercolor": watercolor, "Outdoors": outdoors, "Topo": openTopoMap, "CyclOSM": cyclOSM };
     L.control.layers(baseMaps, null, { position: 'bottomright' }).addTo(map);
 
-    // Initialized empty; not added to map yet
     const accommodationsLayer = L.layerGroup(); 
     
-    const icons = {
-        wild: L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/OCM_l_backcountry.svg', iconSize: [28,28], iconAnchor: [14,14]}),
-        warm: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/3089/3089803.png', iconSize: [32,32], iconAnchor: [16,32]}),
-        paid: L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/05/OCM_l_camping.svg', iconSize: [28,28], iconAnchor: [14,14]}),
-        default: L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/66/OCM_l_hostel.svg', iconSize: [28,28], iconAnchor: [14,14]})
-    };
+    // Icon configuration
+    const iconWild = L.icon({iconUrl: 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/icons/120px-OCM_l_backcountry.png', iconSize: [28,28], iconAnchor: [14,14]});
+    const iconPaid = L.icon({iconUrl: 'https://raw.githubusercontent.com/VECmaico/ghost-gpx-files/refs/heads/main/icons/1920px-OCM_l_camping.png', iconSize: [28,28], iconAnchor: [14,14]});
+    const iconDefault = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/66/OCM_l_hostel.svg', iconSize: [28,28], iconAnchor: [14,14]});
 
     fetch(baseUrl + 'manifest.json')
         .then(res => res.json())
@@ -61,15 +58,19 @@ document.addEventListener("DOMContentLoaded", function() {
                         const geoJson = toGeoJSON.gpx(gpxDom);
 
                         if (filename.toLowerCase().includes('camping') || filename.toLowerCase().includes('showers') || filename.toLowerCase().includes('spontaan')) {
+                            
+                            // Determine icon based on filename
+                            let currentIcon = iconDefault;
+                            if (filename.toLowerCase().includes('wildcamping')) {
+                                currentIcon = iconWild;
+                            } else if (filename.toLowerCase().includes('paidcamping')) {
+                                currentIcon = iconPaid;
+                            }
+
                             L.geoJSON(geoJson, {
                                 filter: (f) => f.geometry.type === "Point",
                                 pointToLayer: (feature, latlng) => {
-                                    let icon = icons.default;
-                                    const name = (feature.properties.name || "").toLowerCase();
-                                    if (name.includes('wild')) icon = icons.wild;
-                                    else if (name.includes('shower')) icon = icons.warm;
-                                    else if (name.includes('paid')) icon = icons.paid;
-                                    return L.marker(latlng, { icon: icon }).bindPopup("<b>" + feature.properties.name + "</b>");
+                                    return L.marker(latlng, { icon: currentIcon }).bindPopup("<b>" + (feature.properties.name || "Waypoint") + "</b>");
                                 }
                             }).addTo(accommodationsLayer);
                         } else {
