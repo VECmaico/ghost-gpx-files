@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<gpx version="1.1" creator="OsmAnd+ 5.3.10" xmlns="http://www.topografix.com/GPX/1/1" xmlns:osmand="https://osmand.net/docs/technical/osmand-file-formats/osmand-gpx" xmlns:gpxtpx="https://www8.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 https://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>favorites-2025others</name>
+  </metadata>
+  <wpt lat="47.7707626" lon="0.9519421">
+    <ele>71.2</ele>
+    <time>2025-08-06T21:32:12Z</time>
+    <name>1000km</name>
+    <type>2025others</type>
+    <extensions>
+      <osmand:address>Route du Moulin de la Fontaine, Thoré-la-Rochette</osmand:address>
+      <osmand:background>square</osmand:background>
+    </extensions>
+  </wpt>
+  <wpt lat="48.3884877" lon="1.4124607">
+    <time>2026-06-09T14:34:48Z</time>
+    <name>Gates riem kapot en achterwiel plat</name>
+    <type>2025others</type>
+    <extensions>
+      <osmand:color>#D00D0D</osmand:color>
+      <osmand:background>octagon</osmand:background>
+      <osmand:icon>bicycle_repair_station</osmand:icon>
+    </extensions>
+  </wpt>
+  <extensions>
+    <osmand:points_groups>
+      <group name="2025others" color="#EECC22" icon="special_star" background="circle" pinned="false" />
+    </osmand:points_groups>
+  </extensions>
+</gpx>
