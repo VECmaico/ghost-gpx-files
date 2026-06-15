@@ -1,14 +1,11 @@
 {
     "year": "2026",
     "tracks": [
-      "2026/RUW/RUW_FR_01.gpx",
-      "2026/RUW/RUW_FR_01.gpx",
-      "2025/RUW/RUW_FR_02.gpx",
-      "2025/RUW/RUW_FR_03.gpx",
-      "2025/RUW/RUW_FR_04.gpx",
-      "2025/RUW/RUW_FR_05.gpx",
+      "2026/RUW/RUW_FR_06.gpx",
+      "2026/RUW/RUW_FR_08.gpx"
+
       
-      "],
+      ],
     "waypoints": {
         "sleeping": "2026/POI/2026sleepingplaces.gpx",
         "blog": "2026/POI/2026blogpost.gpx",
