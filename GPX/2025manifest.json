@@ -1,12 +1,20 @@
-[
-  "2025/POI/2025sleepingplaces.gpx",
-  "2025/POI/2025others.gpx",
-  
-  "2025/RUW/RUW_BE_01.gpx",
-  "2025/RUW/RUW_FR_01.gpx",
-  "2025/RUW/RUW_FR_02.gpx",
-  "2025/RUW/RUW_FR_03.gpx",
-  "2025/RUW/RUW_FR_04.gpx",
-  "2025/RUW/RUW_FR_05.gpx"
+{
+    "year": "2025",
+    "tracks": [
+      "2025/RUW/RUW_BE_01.gpx",
+      "2025/RUW/RUW_FR_01.gpx",
+      "2025/RUW/RUW_FR_02.gpx",
+      "2025/RUW/RUW_FR_03.gpx",
+      "2025/RUW/RUW_FR_04.gpx",
+      "2025/RUW/RUW_FR_05.gpx",
+      
+      "],
+    "waypoints": {
+        "sleeping": "2025/POI/2025sleepingplaces.gpx",
+        "blog": "2025/POI/2025blogpost.gpx",
+        "other": "2025/POI/2025others.gpx"
+    }
+}
 
-]
+
+
